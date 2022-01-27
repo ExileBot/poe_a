@@ -2,7 +2,7 @@
 #define HEXDUMP_COLS 16
 std::vector<CPackageField *> g_收包字段数组;
 bool g_收集解密字段 = false;
-int g_解密字段循环次数 = 25;
+int g_解密字段循环次数 = 25;//11
 
 void hexdump(void *mem, size_t len, WORD wAttributes)
 {
