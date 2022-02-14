@@ -2,7 +2,7 @@
 #define HEXDUMP_COLS 16
 std::vector<CPackageField *> g_收包字段数组;
 bool g_收集解密字段 = false;
-int g_解密字段循环次数 = 25;//11
+int g_解密字段循环次数 = 25; //11
 
 void hexdump(void *mem, size_t len, WORD wAttributes)
 {
@@ -72,9 +72,54 @@ void CBuffer::解析收包()
         Recv_Link1_02();
         break;
     }
+    case 0x4:
+    {
+        Recv_Link1_04();
+        break;
+    }
+    case 0x5:
+    {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+        printf("\nRECV ID:%x SOCKET:%llx\n", 0x5, m_socket);
+        break;
+    }
     case 0xa:
     {
         Recv_Link2_0a();
+        break;
+    }
+    case 0x13:
+    {
+        // static bool isb = false;
+        // if (!isb)
+        // {
+        //     Recv_Link1_13();
+        //     isb = true;
+        // }
+        // else
+        // {
+        //     Recv_Link2_13();
+        // }
+
+        break;
+    }
+    case 0x15:
+    {
+        // static bool isb15 = false;
+        // if (!isb15)
+        // {
+        //     Recv_Link1_15();
+        //     isb15 = true;
+        // }
+        // else
+        // {
+        //     Recv_Link2_15();
+        // }
+        break;
+    }
+    case 0x19:
+    {
+        Recv_Link1_19();
         break;
     }
     case 0x3b:
@@ -84,6 +129,11 @@ void CBuffer::解析收包()
     }
     case 0xf:
         break;
+    case 0x10:
+    {
+        Recv_Link2_10();
+        break;
+    }
     case 0x142:
     {
         Recv_Link2_142();
@@ -159,7 +209,7 @@ void CBuffer::解析收包()
     printf("-------------------------------------------------------------------------------\n");
 
     g_收集解密字段 = true;
-    g_解密字段循环次数 = 20;
+    g_解密字段循环次数 = 150;
 }
 
 void CBuffer::Recv_Link2_143()
@@ -382,6 +432,15 @@ void CBuffer::ReadData_3()
     }
 }
 
+void CBuffer::ReadData_4()
+{
+    qint16 size = read<quint16>();
+    for (qint16 i = 0; i < size; i++)
+    {
+        read<quint32>();
+    }
+}
+
 void CBuffer::Recv_Link2_14b()
 {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
@@ -505,10 +564,165 @@ void CBuffer::Recv_Link1_02()
 void CBuffer::Recv_Link1_04()
 {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
-    printf("\nRECV手动解析  ID:%x SOCKET:%llx\n", 0x2, m_socket);
+    printf("\nRECV手动解析  ID:%x SOCKET:%llx\n", 0x4, m_socket);
+
+    read<quint16>();
+    quint16 ret = read<quint16>();
+    int size = 0;
+    if (ret)
+    {
+        size *= 2;
+    }
+    read(size);
+    read(0x20);
+    read(0x1);
+    readString();
 }
 
 void CBuffer::Recv_Link2_0f()
 {
     read<quint32>();
+}
+
+void CBuffer::Recv_Link1_19()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV手动解析  ID:%x SOCKET:%llx\n", 0x19, m_socket);
+
+    read<quint64>();
+    //fs_unknown_1() 函数头
+    quint32 size = read<quint32>();
+    for (quint32 i = 0; i < size; i++)
+    {
+        quint16 size1 = read<quint16>();
+        read(size1 ? size1 * 2 : 0);
+
+        size1 = read<quint16>();
+        read(size1 ? size1 * 2 : 0);
+
+        readString();
+        readString();
+        read<quint64>();
+        read<quint64>();
+        read<quint64>();
+        read<quint16>();
+        read<quint8>();
+        read<quint8>();
+    }
+    //fs_unknown_1() 函数尾
+}
+
+void CBuffer::Recv_Link1_14()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV手动解析  ID:%x SOCKET:%llx\n", 0x14, m_socket);
+}
+
+void CBuffer::Recv_Link1_13()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV脚本解析  ID:%x SOCKET:%llx\n", 0x13, m_socket);
+
+    read<quint32>();
+    read<quint32>();
+    read<quint32>();
+    quint8 size = read<quint8>();
+    for (quint8 i = 0; i < size; i++)
+    {
+        read(0x1c);
+    }
+    read(0x40);
+}
+
+void CBuffer::Recv_Link2_13()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV脚本解析  ID:%x SOCKET:%llx\n", 0x13, m_socket);
+
+    quint16 size = read<quint16>();
+    read<quint16>();
+    read(size * 2);
+    read(size);
+}
+
+void CBuffer::Recv_Link1_15()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV脚本解析  ID:%x SOCKET:%llx\n", 0x15, m_socket);
+    read<quint16>();
+}
+
+void CBuffer::Recv_Link2_15()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV脚本解析  ID:%x SOCKET:%llx\n", 0x15, m_socket);
+    read<quint32>();
+}
+
+void CBuffer::Recv_Link2_10()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x6);
+    printf("\nRECV脚本解析  ID:%x SOCKET:%llx\n", 0x10, m_socket);
+
+    read<quint16>();
+    readString();
+    read<quint32>();
+    read<quint8>();
+    read<quint8>();
+    read<quint8>();
+    read<quint8>();
+
+    __m128i ret;
+    read(&ret, 0X3);
+    read<quint8>();
+    read<quint8>();
+    read<quint8>();
+
+    printf("read:%x\n", ret.m128i_u8[0]);
+
+    if ((ret.m128i_u8[0] & 8) != 0)
+    {
+        read<quint16>();
+    }
+    ReadData_4();
+    quint16 v6 = read<quint16>();
+    if (v6 >= 0)
+    {
+        //goto LABEL_13;
+        for (quint16 i = 0; i < v6; i++)
+        {
+            read<quint16>();
+        }
+    }
+
+    v6 = read<quint8>();
+    if (v6 > 0)
+    {
+        //goto LABEL_24;
+        for (quint16 i = 0; i < v6; i++)
+        {
+            read<quint8>();
+        }
+    }
+    if ((ret.m128i_u8[1] & 1) != 0)
+    {
+        read<quint8>();
+        v6 = read<quint8>();
+        if (v6 > 0)
+        {
+            //goto LABEL_36;
+            for (quint16 i = 0; i < v6; i++)
+            {
+                read<quint8>();
+            }
+        }
+    }
+
+    if ((ret.m128i_u8[1] & 2) == 0)
+    {
+        if (ret.m128i_i8[0] < 0)
+        {
+            ReadData_0();
+        }
+    }
 }

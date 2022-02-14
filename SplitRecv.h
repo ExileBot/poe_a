@@ -45,7 +45,11 @@ public:
 	qint64 m_socket;
 	char *m_buffer;
 	size_t m_Index = 0;
-	CBuffer(char *buffer , qint64 socket = 0) { m_buffer = buffer;m_socket = socket; };
+	CBuffer(char *buffer, qint64 socket = 0)
+	{
+		m_buffer = buffer;
+		m_socket = socket;
+	};
 	template <class T>
 	CBuffer &operator>>(T &v)
 	{
@@ -113,17 +117,26 @@ public:
 			hexdump(&v, len, 6);
 			v = htonl(v);
 		}
+		else
+		{
+			hexdump(&v, len, 6);
+		}
 		return v;
 	}
 
-	SBuffer read(qint64 size)
+	void read(qint64 size)
 	{
-		SBuffer b;
-		b.m_size = size;
-		b.m_Buffer = (char*)(m_buffer + m_Index);
+		hexdump(m_buffer + m_Index , size, 6);
 		m_Index += size;
-		hexdump(b.m_Buffer, b.m_size, 6);
-		return b;
+	}
+
+	void read(void * buffer , qint64 size)
+	{
+	
+		hexdump(m_buffer + m_Index , size, 6);
+		memcpy_s(buffer , size , m_buffer + m_Index , size);
+		m_Index += size;
+
 	}
 
 	void readString();
@@ -132,13 +145,20 @@ public:
 	quint64 ReadData_1();
 	void ReadData_2();
 	void ReadData_3();
-	
+	void ReadData_4();
 
 	void 解析收包();
 	void Recv_Link1_02();
 	void Recv_Link1_04();
+	void Recv_Link1_13();
+	void Recv_Link1_15();
+	void Recv_Link1_14();
+	void Recv_Link1_19();
 
 	void Recv_Link2_0f();
+	void Recv_Link2_10();
+	void Recv_Link2_13();
+	void Recv_Link2_15();
 	void Recv_Link2_3b();
 	void Recv_Link2_143();
 	void Recv_Link2_214();
