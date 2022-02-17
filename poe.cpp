@@ -9,8 +9,8 @@
 #define ReadBuffRva 0x1278820
 #define ReadBuffHookRva ReadBuffRva + 0x102
 
-#define g_公共发包CALLRVA 0x1278A90
-#define g_公共收包RVA 0x163F190+ 0x46 //(-0x80)48 8B 0F 48 8B 01 4C 8B C3 0F B7 D6                             $+46             00007FF76BDC2AA6           | 48:8D9424 80010000       | lea rdx,qword ptr ss:[rsp+180]                                      |
+#define g_公共发包CALLRVA 0x148ED10
+#define g_公共收包RVA 0x187D5C0 + 0x46 //(-0x80)48 8B 0F 48 8B 01 4C 8B C3 0F B7 D6                             $+46             00007FF76BDC2AA6           | 48:8D9424 80010000       | lea rdx,qword ptr ss:[rsp+180]                                      |
 #define g_收包包内容偏移 0x1c0
 #define g_收包总已读取长度偏移 0x190
 #define g_收包当前读取长度偏移 0x1a0
